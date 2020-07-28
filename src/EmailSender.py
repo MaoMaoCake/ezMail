@@ -66,3 +66,4 @@ class EmailSender:
         with smtplib.SMTP_SSL(self.mail_server, 465, context=context) as server:
             server.login(sender_mail, password)
             server.sendmail(self.sender_mail, self.reciever_mail, self.mailpackgage.as_string())
+
