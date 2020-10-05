@@ -117,4 +117,19 @@ class EmailSender:
 
             server.sendmail(sender_mail, self.receiver_mail, self.mail_package.as_string())
 
-    
+    def send_many(self, addresses, sender_mail="", password="", port=465):
+        context = ssl.create_default_context()
+        if compare_digest(password, ""):
+            password = input("Please enter password")
+        with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
+            if sender_mail == "":
+                server.login(self.sender_mail, password)
+                sender_mail = self.sender_mail
+            else:
+                server.login(sender_mail, password)
+
+            for receiver in addresses:
+                if "@" not in receiver:
+                    print("{} is not a valid email address")
+                else:
+                    server.sendmail(sender_mail, receiver, self.mail_package.as_string())
