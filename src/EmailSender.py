@@ -10,60 +10,111 @@ class RequiredFieldEmptyError(Exception):
     pass
 
 
+class InvalidMailServerError(Exception):
+    pass
+
+
 class EmailSender:
+    # initialise the Multipart message
     def __init__(self):
-        self.mailpackgage = MIMEMultipart("alternative")
+        self.mail_package = MIMEMultipart("alternative")
+        # set fields to empty
+        self.sender_mail = ""
+        self.receiver_mail = ""
+        self.mail_server = ""
 
+    # add a subject
     def add_subject(self, subject):
-        self.mailpackgage["Subject"] = subject
+        self.mail_package["Subject"] = subject
 
+    # add a destination
     def add_sender(self, sender_email=""):
         if sender_email == "":
             raise RequiredFieldEmptyError
-        self.mailpackgage["From"] = sender_email
+        self.mail_package["From"] = sender_email
         self.sender_mail = sender_email
 
+    # add add a receiving address
     def add_receiver(self, receiver_email=""):
         if receiver_email == "":
             raise RequiredFieldEmptyError
-        self.mailpackgage["To"] = receiver_email
-        self.reciever_mail = receiver_email
+        self.mail_package["To"] = receiver_email
+        self.receiver_mail = receiver_email
 
-    def set_required(self, sender_email, receiver_mail, subject):
+    # set the main required fields
+    def set_required(self, sender_email, receiver_mail, subject=""):
         self.add_sender(sender_email)
         self.add_receiver(receiver_mail)
         self.add_subject(subject)
 
+    # add a plain text message to the email
     def add_text(self, text):
-        self.mailpackgage.attach(MIMEText(text, "plain"))
+        self.mail_package.attach(MIMEText(text, "plain"))
 
+    # add a html style message to the email
     def add_html_text(self, html_text):
-        self.mailpackgage.attach(MIMEText(html_text, "html"))
+        self.mail_package.attach(MIMEText(html_text, "html"))
 
+    # set the mail server
     def set_mail_server(self, mail_server="gmail"):
+        """
+        set the mail server address
+        defaults to gmail servers
+
+        :param mail_server:
+        :return:
+        """
         # todo add mail servers
         mail_server = mail_server.lower()
         if mail_server == "gmail":
             self.mail_server = "smtp.gmail.com"
         elif mail_server == "hotmail":
             self.mail_server = ""
-        elif mail_server == "":
+        elif mail_server == "yahoo":
             self.mail_server = ""
+        else:
+            self.mail_server = mail_server
 
+    # add an attachment to the email
     def add_attachment(self, filename):
+        """
+        add an attachment
+        use absolute path
+        windows use \\ not just \
+        
+        :param filename:
+        :return:
+        """
         with open(filename, "rb") as attachment:
             self.attachment = MIMEBase("application", "octet-stream")
             self.attachment.set_payload(attachment.read())
         encoders.encode_base64(self.attachment)
         self.attachment.add_header("Content-Disposition",
                                    f"attachment; filename= {filename}", )
-        self.mailpackgage.attach(self.attachment)
+        self.mail_package.attach(self.attachment)
 
-    def send(self, sender_mail, password=""):
+    # send the mail!
+    def send(self, sender_mail="", password="", port=465):
+        """
+        send the email
+        dont store password for safety
+        your email 
+        :param port:
+        optional SMTP port
+        :param password:
+        optional param fill with real password to not need to type
+        :return:
+        """
         context = ssl.create_default_context()
         if compare_digest(password, ""):
             password = input("Please enter password")
-        with smtplib.SMTP_SSL(self.mail_server, 465, context=context) as server:
-            server.login(sender_mail, password)
-            server.sendmail(self.sender_mail, self.reciever_mail, self.mailpackgage.as_string())
+        with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
+            if sender_mail == "":
+                server.login(self.sender_mail, password)
+                sender_mail = self.sender_mail
+            else:
+                server.login(sender_mail, password)
 
+            server.sendmail(sender_mail, self.receiver_mail, self.mail_package.as_string())
+
+    
