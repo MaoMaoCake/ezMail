@@ -130,6 +130,8 @@ class EmailSender:
         # if password is not set ask user for password
         if compare_digest(password, ""):
             password = input("Please enter password")
+        if self.mail_server == "":
+            self.set_mail_server()
         with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
             if sender_mail == "":
                 server.login(self.sender_mail, password)
@@ -144,6 +146,8 @@ class EmailSender:
         context = ssl.create_default_context()
         if compare_digest(password, ""):
             password = input("Please enter password")
+        if self.mail_server == "":
+            self.set_mail_server()
         with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
             if sender_mail == "":
                 server.login(self.sender_mail, password)
