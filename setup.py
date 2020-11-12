@@ -12,7 +12,7 @@ setup(
     name='ezMail',
     version='0.0.1',
     description='Easy to use python mailing app',
-    long_description=open('README.txt').read() + '\n\n' + open('CHANGELOG.txt').read(),
+    long_description=open('README.rst').read() + '\n\n' + open('CHANGELOG.txt').read(),
     url='',
     author='Jirapong Pansak',
     author_email='me@jirapongpansak.com',
