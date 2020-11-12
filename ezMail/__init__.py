@@ -89,9 +89,9 @@ class EmailSender:
         if mail_server == "gmail":
             self.mail_server = "smtp.gmail.com"
         elif mail_server == "hotmail":
-            self.mail_server = ""
+            self.mail_server = "smtp-mail.outlook.com"
         elif mail_server == "yahoo":
-            self.mail_server = ""
+            self.mail_server = "smtp.mail.yahoo.com"
         else:
             self.mail_server = mail_server
 
