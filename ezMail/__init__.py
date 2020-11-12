@@ -4,7 +4,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from secrets import compare_digest
-
+import re
 
 class RequiredFieldEmptyError(Exception):
     pass
@@ -66,6 +66,8 @@ class EmailSender:
         :return:
         """
         # todo add mail servers
+        # try to add mail servers for easy mailing
+        # defaults to gmail
         mail_server = mail_server.lower()
         if mail_server == "gmail":
             self.mail_server = "smtp.gmail.com"
@@ -107,7 +109,9 @@ class EmailSender:
         optional param fill with real password to not need to type
         :return:
         """
+        # create a ssl context
         context = ssl.create_default_context()
+        # if password is not set ask user for password
         if compare_digest(password, ""):
             password = input("Please enter password")
         with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
@@ -119,6 +123,7 @@ class EmailSender:
 
             server.sendmail(sender_mail, self.receiver_mail, self.mail_package.as_string())
 
+    # mail function to send many emails
     def send_many(self, addresses, sender_mail="", password="", port=465):
         context = ssl.create_default_context()
         if compare_digest(password, ""):
@@ -131,7 +136,7 @@ class EmailSender:
                 server.login(sender_mail, password)
 
             for receiver in addresses:
-                if "@" not in receiver:
-                    print("{} is not a valid email address")
+                if len(re.findall(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)",receiver)) < 1:
+                    print(f"{receiver} is not a valid email address")
                 else:
                     server.sendmail(sender_mail, receiver, self.mail_package.as_string())
