@@ -22,6 +22,7 @@ class EmailSender:
         self.sender_mail = ""
         self.receiver_mail = ""
         self.mail_server = ""
+        self.attachment = ""
 
     # add a subject
     def add_subject(self, subject):
@@ -81,7 +82,7 @@ class EmailSender:
         add an attachment
         use absolute path
         windows use \\ not just \
-        
+
         :param filename:
         :return:
         """
@@ -98,7 +99,8 @@ class EmailSender:
         """
         send the email
         dont store password for safety
-        your email 
+        your email
+        :param sender_mail:
         :param port:
         optional SMTP port
         :param password:
