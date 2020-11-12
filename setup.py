@@ -20,5 +20,6 @@ setup(
     classifiers=classifiers,
     keywords='emails',
     packages=find_packages(),
-    install_requires=['']
+    install_requires=[''],
+    download_url="https://github.com/MaoMaoCake/ezMail/archive/v_01.tar.gz"
 )

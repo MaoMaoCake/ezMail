@@ -2,5 +2,5 @@ CHANGE LOG
 ==================
 
 0.0.1 (12/11/2020)
------------------
-first release
+----------------------------
+first release of this library
