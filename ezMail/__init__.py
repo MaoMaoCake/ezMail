@@ -21,6 +21,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from secrets import compare_digest
 import re
+import getpass
 
 class RequiredFieldEmptyError(Exception):
     pass
@@ -129,7 +130,7 @@ class EmailSender:
         context = ssl.create_default_context()
         # if password is not set ask user for password
         if compare_digest(password, ""):
-            password = input("Please enter password")
+            password = getpass.getpass(prompt="Please enter password: ")
         if self.mail_server == "":
             self.set_mail_server()
         with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
@@ -145,7 +146,7 @@ class EmailSender:
     def send_many(self, addresses, sender_mail="", password="", port=465):
         context = ssl.create_default_context()
         if compare_digest(password, ""):
-            password = input("Please enter password")
+            password = getpass.getpass(prompt="Please enter password: ")
         if self.mail_server == "":
             self.set_mail_server()
         with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
