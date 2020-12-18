@@ -114,7 +114,7 @@ class EmailSender:
         self.mail_package.attach(self.attachment)
 
     # send the mail!
-    def send(self, sender_mail="", password="", port=465):
+    def send(self, sender_mail="", password="", port=465 ,use_TLS=False):
         """
         send the email
         dont store password for safety
@@ -133,15 +133,22 @@ class EmailSender:
             password = getpass.getpass(prompt="Please enter password: ")
         if self.mail_server == "":
             self.set_mail_server()
-        with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
-            if sender_mail == "":
-                server.login(self.sender_mail, password)
-                sender_mail = self.sender_mail
-            else:
+        if not use_TLS:
+            with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
+                if sender_mail == "":
+                    server.login(self.sender_mail, password)
+                    sender_mail = self.sender_mail
+                else:
+                    server.login(sender_mail, password)
+
+                server.sendmail(sender_mail, self.receiver_mail, self.mail_package.as_string())
+        elif use_TLS:
+            with smtplib.SMTP(self.mail_server, port) as server:
+                server.ehlo()  # Can be omitted
+                server.starttls(context=context)
+                server.ehlo()  # Can be omitted
                 server.login(sender_mail, password)
-
-            server.sendmail(sender_mail, self.receiver_mail, self.mail_package.as_string())
-
+                server.sendmail(sender_mail, self.receiver_mail, self.mail_package.as_string())
     # mail function to send many emails
     def send_many(self, addresses, sender_mail="", password="", port=465):
         context = ssl.create_default_context()
