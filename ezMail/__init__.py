@@ -23,6 +23,7 @@ from secrets import compare_digest
 import re
 import getpass
 
+
 class RequiredFieldEmptyError(Exception):
     pass
 
@@ -114,11 +115,12 @@ class EmailSender:
         self.mail_package.attach(self.attachment)
 
     # send the mail!
-    def send(self, sender_mail="", password="", port=465 ,use_TLS=False):
+    def send(self, sender_mail="", password="", port=465, use_TLS=False):
         """
         send the email
         dont store password for safety
         your email
+        :param use_TLS:
         :param sender_mail:
         :param port:
         optional SMTP port
@@ -144,16 +146,20 @@ class EmailSender:
                 server.sendmail(sender_mail, self.receiver_mail, self.mail_package.as_string())
         elif use_TLS:
             with smtplib.SMTP(self.mail_server, port) as server:
-                server.ehlo()  # Can be omitted
                 server.starttls(context=context)
-                server.ehlo()  # Can be omitted
-                server.login(sender_mail, password)
+                if sender_mail == "":
+                    server.login(self.sender_mail, password)
+                    sender_mail = self.sender_mail
+                else:
+                    server.login(sender_mail, password)
                 server.sendmail(sender_mail, self.receiver_mail, self.mail_package.as_string())
+
     # mail function to send many emails
     def send_many(self, addresses, sender_mail="", password="", port=465):
         context = ssl.create_default_context()
         if compare_digest(password, ""):
-            password = getpass.getpass(prompt="Please enter password: ")
+            print("Getpass currently not working please note others can see your password")
+            password = input("Please Enter Your Password: ")  # getpass.getpass(prompt="Please enter password: ")
         if self.mail_server == "":
             self.set_mail_server()
         with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
@@ -164,7 +170,7 @@ class EmailSender:
                 server.login(sender_mail, password)
 
             for receiver in addresses:
-                if len(re.findall(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)",receiver)) < 1:
+                if len(re.findall(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", receiver)) < 1:
                     print(f"{receiver} is not a valid email address")
                 else:
                     server.sendmail(sender_mail, receiver, self.mail_package.as_string())
