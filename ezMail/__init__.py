@@ -132,7 +132,8 @@ class EmailSender:
         context = ssl.create_default_context()
         # if password is not set ask user for password
         if compare_digest(password, ""):
-            password = getpass.getpass(prompt="Please enter password: ")
+            print("Getpass currently not working please note others can see your password")
+            password = input("Please Enter Your Password: ")  # getpass.getpass(prompt="Please enter password: ")
         if self.mail_server == "":
             self.set_mail_server()
         if not use_TLS:
@@ -155,22 +156,40 @@ class EmailSender:
                 server.sendmail(sender_mail, self.receiver_mail, self.mail_package.as_string())
 
     # mail function to send many emails
-    def send_many(self, addresses, sender_mail="", password="", port=465):
+    def send_many(self, addresses, sender_mail="", password="", port=465, use_TLS= False):
         context = ssl.create_default_context()
         if compare_digest(password, ""):
             print("Getpass currently not working please note others can see your password")
             password = input("Please Enter Your Password: ")  # getpass.getpass(prompt="Please enter password: ")
         if self.mail_server == "":
             self.set_mail_server()
-        with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
-            if sender_mail == "":
-                server.login(self.sender_mail, password)
-                sender_mail = self.sender_mail
-            else:
-                server.login(sender_mail, password)
 
-            for receiver in addresses:
-                if len(re.findall(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", receiver)) < 1:
-                    print(f"{receiver} is not a valid email address")
+        if not use_TLS:
+            with smtplib.SMTP_SSL(self.mail_server, port, context=context) as server:
+                if sender_mail == "":
+                    server.login(self.sender_mail, password)
+                    sender_mail = self.sender_mail
                 else:
-                    server.sendmail(sender_mail, receiver, self.mail_package.as_string())
+                    server.login(sender_mail, password)
+
+                for receiver in addresses:
+                    if len(re.findall(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", receiver)) < 1:
+                        print(f"{receiver} is not a valid email address")
+                    else:
+                        print(f'Sending mail to {receiver}... \n')
+                        server.sendmail(sender_mail, receiver, self.mail_package.as_string())
+        elif use_TLS:
+            with smtplib.SMTP(self.mail_server, port) as server:
+                server.starttls(context=context)
+                if sender_mail == "":
+                    server.login(self.sender_mail, password)
+                    sender_mail = self.sender_mail
+                else:
+                    server.login(sender_mail, password)
+
+                for receiver in addresses:
+                    if len(re.findall(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", receiver)) < 1:
+                        print(f"{receiver} is not a valid email address")
+                    else:
+                        print(f'Sending mail to {receiver}... \n')
+                        server.sendmail(sender_mail, receiver, self.mail_package.as_string())
