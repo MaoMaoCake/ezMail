@@ -10,7 +10,7 @@ classifiers = [
 
 setup(
     name='ezMail',
-    version='0.0.1',
+    version='0.0.2',
     description='Easy to use python mailing app',
     long_description=open('README.rst').read() + '\n\n' + open('CHANGELOG.txt').read(),
     url='',
@@ -21,5 +21,5 @@ setup(
     keywords='emails',
     packages=find_packages(),
     install_requires=[''],
-    download_url="https://github.com/MaoMaoCake/ezMail/archive/v_01.tar.gz"
+    download_url="https://github.com/MaoMaoCake/ezMail/archive/v0.0.2.tar.gz"
 )
